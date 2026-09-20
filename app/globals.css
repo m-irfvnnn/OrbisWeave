@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+:root {
+  --ink: #0b0f14;
+  --paper: #f4fff6;
+  --lime: #c0ff3e;
+  --blue: #4361ee;
+  --muted: #788492;
+  --line: rgba(11, 15, 20, .14);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; height:100%; overflow:hidden; }
+body { margin: 0; height:100%; overflow:hidden; background: #080a0d; color: #f4fff6; font-family: 'Space Grotesk', sans-serif; }
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+
+@layer base {
+  * { border-color: var(--line); }
+}
