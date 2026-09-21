@@ -168,14 +168,31 @@ export async function deleteProjectSuggestion(id: string) {
   throwIfError(result.error)
 }
 
-export async function getProjectRoadmap(projectId: string) {
-  const result = await supabase.from('project_roadmaps').select('*').eq('project_id', projectId).maybeSingle()
+export async function listProjectRoadmaps(projectId: string) {
+  const result = await supabase.from('project_roadmaps').select('*').eq('project_id', projectId).order('updated_at', { ascending: false })
   throwIfError(result.error)
-  return requireData(result.data)
+  return result.data ?? []
 }
 
-export async function saveProjectRoadmap(values: TablesInsert<'project_roadmaps'>) {
-  const result = await supabase.from('project_roadmaps').upsert(values, { onConflict: 'project_id' }).select('*').single()
+export async function saveProjectRoadmap(values: TablesInsert<'project_roadmaps'> & { id?: string }) {
+  if (values.id) {
+    const { id, ...update } = values
+    const result = await supabase.from('project_roadmaps').update(update).eq('id', id).select('*').single()
+    throwIfError(result.error)
+    return requireData(result.data)
+  }
+
+  if (!values.status || values.status === 'current') {
+    const current = await supabase.from('project_roadmaps').select('id').eq('project_id', values.project_id).eq('status', 'current').maybeSingle()
+    throwIfError(current.error)
+    if (current.data) {
+      const result = await supabase.from('project_roadmaps').update(values).eq('id', current.data.id).select('*').single()
+      throwIfError(result.error)
+      return requireData(result.data)
+    }
+  }
+
+  const result = await supabase.from('project_roadmaps').insert(values).select('*').single()
   throwIfError(result.error)
   return requireData(result.data)
 }
