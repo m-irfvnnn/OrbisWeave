@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { TemporaryAccountProvider } from '@/components/account-state'
+import { AuthProvider } from '@/components/account-state'
 import './globals.css'
 import './app-styles.css'
 import './auth-styles.css'
@@ -41,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <TemporaryAccountProvider>{children}</TemporaryAccountProvider>
+        <AuthProvider>{children}</AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
