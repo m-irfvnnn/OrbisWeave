@@ -5,7 +5,7 @@ import { useAuth } from '@/components/account-state'
 import {
   deleteProjectSuggestion,
   deletePromptTemplate,
-  getProjectRoadmap,
+  listProjectRoadmaps,
   listProjectSuggestions,
   listPromptTemplates,
   saveProjectRoadmap,
@@ -18,6 +18,7 @@ type AIState = {
   projectId: string | null
   promptTemplates: Tables<'prompt_templates'>[]
   suggestions: Tables<'project_suggestions'>[]
+  roadmaps: Tables<'project_roadmaps'>[]
   roadmap: Tables<'project_roadmaps'> | null
   loading: boolean
   loadProjectIntelligence: (projectId: string) => Promise<void>
@@ -25,7 +26,7 @@ type AIState = {
   removePrompt: (id: string) => Promise<void>
   saveSuggestion: (values: Omit<TablesInsert<'project_suggestions'>, 'owner_id'> & { id?: string }) => Promise<Tables<'project_suggestions'>>
   removeSuggestion: (id: string) => Promise<void>
-  saveRoadmap: (values: Omit<TablesInsert<'project_roadmaps'>, 'owner_id'>) => Promise<Tables<'project_roadmaps'>>
+  saveRoadmap: (values: Omit<TablesInsert<'project_roadmaps'>, 'owner_id'> & { id?: string }) => Promise<Tables<'project_roadmaps'>>
 }
 
 const AIContext = createContext<AIState | null>(null)
@@ -35,6 +36,7 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
   const [projectId, setProjectId] = useState<string | null>(null)
   const [promptTemplates, setPromptTemplates] = useState<Tables<'prompt_templates'>[]>([])
   const [suggestions, setSuggestions] = useState<Tables<'project_suggestions'>[]>([])
+  const [roadmaps, setRoadmaps] = useState<Tables<'project_roadmaps'>[]>([])
   const [roadmap, setRoadmap] = useState<Tables<'project_roadmaps'> | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -44,12 +46,13 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
       const [templates, nextSuggestions, nextRoadmap] = await Promise.all([
         listPromptTemplates(nextProjectId),
         listProjectSuggestions(nextProjectId),
-        getProjectRoadmap(nextProjectId),
+        listProjectRoadmaps(nextProjectId),
       ])
       setProjectId(nextProjectId)
       setPromptTemplates(templates)
       setSuggestions(nextSuggestions)
-      setRoadmap(nextRoadmap)
+      setRoadmaps(nextRoadmap)
+      setRoadmap(nextRoadmap.find(item => item.status === 'current') ?? nextRoadmap[0] ?? null)
     } finally {
       setLoading(false)
     }
@@ -79,14 +82,15 @@ export function AIProvider({ children }: { children: React.ReactNode }) {
     setSuggestions(current => current.filter(item => item.id !== id))
   }, [])
 
-  const saveRoadmap = useCallback(async (values: Omit<TablesInsert<'project_roadmaps'>, 'owner_id'>) => {
+  const saveRoadmap = useCallback(async (values: Omit<TablesInsert<'project_roadmaps'>, 'owner_id'> & { id?: string }) => {
     if (!user) throw new Error('Sign in to save project roadmaps.')
     const nextRoadmap = await saveProjectRoadmap({ ...values, owner_id: user.uid })
-    setRoadmap(nextRoadmap)
+    setRoadmaps(current => [nextRoadmap, ...current.filter(item => item.id !== nextRoadmap.id)])
+    if (nextRoadmap.status === 'current') setRoadmap(nextRoadmap)
     return nextRoadmap
   }, [user])
 
-  const value = useMemo(() => ({ projectId, promptTemplates, suggestions, roadmap, loading, loadProjectIntelligence, savePrompt, removePrompt, saveSuggestion, removeSuggestion, saveRoadmap }), [projectId, promptTemplates, suggestions, roadmap, loading, loadProjectIntelligence, savePrompt, removePrompt, saveSuggestion, removeSuggestion, saveRoadmap])
+  const value = useMemo(() => ({ projectId, promptTemplates, suggestions, roadmaps, roadmap, loading, loadProjectIntelligence, savePrompt, removePrompt, saveSuggestion, removeSuggestion, saveRoadmap }), [projectId, promptTemplates, suggestions, roadmaps, roadmap, loading, loadProjectIntelligence, savePrompt, removePrompt, saveSuggestion, removeSuggestion, saveRoadmap])
   return <AIContext.Provider value={value}>{children}</AIContext.Provider>
 }
 

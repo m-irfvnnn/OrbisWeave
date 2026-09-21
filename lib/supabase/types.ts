@@ -320,9 +320,11 @@ export type Database = {
         Row: {
           content: Json
           created_at: string
+          description: string | null
           id: string
           owner_id: string
           project_id: string
+          status: string
           title: string
           updated_at: string
           version: number
@@ -330,9 +332,11 @@ export type Database = {
         Insert: {
           content?: Json
           created_at?: string
+          description?: string | null
           id?: string
           owner_id?: string
           project_id: string
+          status?: string
           title?: string
           updated_at?: string
           version?: number
@@ -340,9 +344,11 @@ export type Database = {
         Update: {
           content?: Json
           created_at?: string
+          description?: string | null
           id?: string
           owner_id?: string
           project_id?: string
+          status?: string
           title?: string
           updated_at?: string
           version?: number
@@ -351,7 +357,7 @@ export type Database = {
           {
             foreignKeyName: "project_roadmaps_project_id_fkey"
             columns: ["project_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },

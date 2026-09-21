@@ -21,8 +21,10 @@ type ProjectInput = { name: string; description: string; phase?: string }
 type WorkspaceState = {
   workspace: Workspace | null
   projects: Project[]
+  recentProjects: Project[]
   loading: boolean
   error: string | null
+  visitProject: (id: string) => void
   createProject: (input: ProjectInput) => Promise<Project>
   updateProject: (id: string, input: Partial<ProjectInput>) => Promise<Project>
   deleteProject: (id: string) => Promise<void>
@@ -51,8 +53,30 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { user, account } = useAuth()
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
+  const [recentProjectIds, setRecentProjectIds] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!user) {
+      setRecentProjectIds([])
+      return
+    }
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(`orbisweave:recent-projects:${user.uid}`) ?? '[]')
+      setRecentProjectIds(Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string').slice(0, 5) : [])
+    } catch {
+      setRecentProjectIds([])
+    }
+  }, [user])
+
+  const visitProject = useCallback((id: string) => {
+    setRecentProjectIds(current => {
+      const next = [id, ...current.filter(projectId => projectId !== id)].slice(0, 5)
+      if (user) window.localStorage.setItem(`orbisweave:recent-projects:${user.uid}`, JSON.stringify(next))
+      return next
+    })
+  }, [user])
 
   const loadProjectsFor = useCallback(async (workspaceId: string) => {
     const { data, error: projectsError } = await supabase
@@ -166,9 +190,18 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     const { error: deleteError } = await supabase.from('projects').delete().eq('id', id)
     if (deleteError) throw deleteError
     setProjects(current => current.filter(project => project.id !== id))
-  }, [])
+    setRecentProjectIds(current => {
+      const next = current.filter(projectId => projectId !== id)
+      if (user) window.localStorage.setItem(`orbisweave:recent-projects:${user.uid}`, JSON.stringify(next))
+      return next
+    })
+  }, [user])
 
-  const value = useMemo(() => ({ workspace, projects, loading, error, createProject, updateProject, deleteProject, reloadProjects }), [workspace, projects, loading, error, createProject, updateProject, deleteProject, reloadProjects])
+  const recentProjects = useMemo(() => {
+    const ordered = recentProjectIds.map(id => projects.find(project => project.id === id)).filter((project): project is Project => Boolean(project))
+    return ordered.length ? ordered : projects.slice(0, 5)
+  }, [projects, recentProjectIds])
+  const value = useMemo(() => ({ workspace, projects, recentProjects, loading, error, visitProject, createProject, updateProject, deleteProject, reloadProjects }), [workspace, projects, recentProjects, loading, error, visitProject, createProject, updateProject, deleteProject, reloadProjects])
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>
 }
 
