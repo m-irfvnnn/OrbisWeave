@@ -19,3 +19,4 @@ node_modules
 .DS_Store
 # Next.js generated types
 next-env.d.ts
+supabase/.temp/
