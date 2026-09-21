@@ -1,6 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { AuthProvider } from '@/components/account-state'
+import { AIProvider } from '@/components/ai-provider'
+import { ConversationsProvider } from '@/components/conversations-provider'
+import { KnowledgeProvider } from '@/components/knowledge-provider'
 import { WorkspaceProvider } from '@/components/workspace-state'
 import './globals.css'
 import './app-styles.css'
@@ -42,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AuthProvider><WorkspaceProvider>{children}</WorkspaceProvider></AuthProvider>
+        <AuthProvider><WorkspaceProvider><KnowledgeProvider><ConversationsProvider><AIProvider>{children}</AIProvider></ConversationsProvider></KnowledgeProvider></WorkspaceProvider></AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
