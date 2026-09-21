@@ -1,7 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { TemporaryAccountProvider } from '@/components/account-state'
 import './globals.css'
 import './app-styles.css'
+import './auth-styles.css'
 
 export const metadata: Metadata = {
   title: 'OrbisWeave — AI development workspace',
@@ -39,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <TemporaryAccountProvider>{children}</TemporaryAccountProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
