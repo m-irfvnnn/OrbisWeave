@@ -1,162 +1,19 @@
 'use client'
-
-import { useState } from 'react'
-import {
-  Bell,
-  Check,
-  ChevronDown,
-  CircleHelp,
-  FileText,
-  Folder,
-  GitBranch,
-  Grid2X2,
-  Home,
-  Link2,
-  MoreHorizontal,
-  Paperclip,
-  Plus,
-  Rocket,
-  Search,
-  Send,
-  Settings,
-  SlidersHorizontal,
-  Sparkles,
-  Terminal,
-  UserRound,
-  Workflow,
-  X,
-  Zap,
-} from 'lucide-react'
-
-const logoMark = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SVG-gqI415gAmZMMFMUJ8bbVnkWEJMH9TW.png'
-const chatLogoMark = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SVG-Sp1Xi0lUD77k83d5ZiIFjxrPpZlXZA.png'
-const logoWordmark = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Background%2BShadow-EgoMpWC9kweOcroJhJ3MMdNCARSS6L.png'
-const deepseekLogo = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/deepseek-logo-TrLl386065-SBLspFPrpPCSrsQPLsYGVA7G1tA8p6.webp'
-const geminiLogo = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo-google-gemini-8CE4hMd4br1HamAWNcMpRGAi1Y98DI.webp'
-
-type View = 'home' | 'projects' | 'workspace' | 'idea' | 'architecture' | 'resources' | 'milestones' | 'development' | 'tests' | 'deployment' | 'templates' | 'integrations' | 'usage' | 'settings'
-
-const navItems: { label: string; icon: typeof Home; view: View }[] = [
-  { label: 'Home', icon: Home, view: 'home' },
-  { label: 'Projects', icon: Folder, view: 'projects' },
-  { label: 'Templates', icon: Grid2X2, view: 'templates' },
-  { label: 'Integrations', icon: Link2, view: 'integrations' },
-  { label: 'Usage & Costs', icon: SlidersHorizontal, view: 'usage' },
-  { label: 'Settings', icon: Settings, view: 'settings' },
-]
-
-const projects = [
-  { name: 'Lead Qualification Agent', phase: 'Building', color: 'lime', description: 'Inbound lead qualification and routing', progress: 57, updated: '2 min ago' },
-  { name: 'Customer Support Agent', phase: 'Planning', color: 'blue', description: 'AI support triage for shared inboxes', progress: 24, updated: 'Yesterday' },
-  { name: 'Internal Knowledge Bot', phase: 'Testing', color: 'white', description: 'Answers from company knowledge', progress: 86, updated: '3 days ago' },
-  { name: 'Data Enrichment Flow', phase: 'Building', color: 'lime', description: 'Enrich and sync new prospects', progress: 41, updated: '5 days ago' },
-]
-
-function Logo({ wordmark = true, chat = false }: { wordmark?: boolean; chat?: boolean }) {
-  return wordmark ? (
-    <div className="brand-lockup" aria-label="OrbisWeave">
-      <img src={logoMark} alt="" className="brand-mark" />
-      <span>orbisweave</span>
-    </div>
-  ) : (
-    <img src={chat ? chatLogoMark : logoMark} alt="OrbisWeave" className="hero-mark" />
-  )
-}
-
-function Sidebar({ view, setView, projectOpen, setProjectOpen }: { view: View; setView: (view: View) => void; projectOpen: boolean; setProjectOpen: (open: boolean) => void }) {
-  return (
-    <aside className="sidebar">
-      <Logo />
-      <button className="new-project" onClick={() => setView('home')}><Plus size={19} /><span>New Project</span><kbd>⌘ N</kbd></button>
-      <div className="sidebar-scroll">
-      <nav className="main-nav" aria-label="Main navigation">
-        {navItems.map(({ label, icon: Icon, view: itemView }) => (
-          <button key={label} className={`nav-item ${view === itemView ? 'active' : ''}`} onClick={() => setView(itemView)}>
-            <Icon size={19} strokeWidth={1.7} /><span>{label}</span>
-          </button>
-        ))}
-      </nav>
-      <div className="recent-heading"><span>Recent Projects</span><Search size={16} /></div>
-      <div className="recent-projects">
-        {projects.map((project) => (
-          <button key={project.name} className="recent-project" onClick={() => { setProjectOpen(true); setView('workspace') }}>
-            <span className={`status-dot ${project.color}`} />
-            <span>{project.name}</span>
-          </button>
-        ))}
-      </div>
-      {projectOpen && (
-        <div className="project-tree">
-          <button className="tree-title" onClick={() => setView('workspace')}><ChevronDown size={15} /> Lead Qualification Agent</button>
-          <span className="tree-label">PLAN</span>
-{(['Idea', 'Architecture', 'Resources', 'Milestones'] as const).map((item, i) => <button key={item} className={`tree-item ${i === 1 ? 'selected' : ''}`} onClick={() => setView(item.toLowerCase() as View)}><span className={i < 2 ? 'tree-check' : ''}>{i < 2 ? '✓' : '○'}</span>{item}</button>)}
-      <span className="tree-label">BUILD</span>
-      {(['Development', 'Tests & Review', 'Deployment'] as const).map(item => <button key={item} className="tree-item" onClick={() => setView(item === 'Tests & Review' ? 'tests' : item.toLowerCase() as View)}><span>○</span>{item}</button>)}
-        </div>
-      )}
-      </div>
-      <div className="profile">
-        <div className="avatar">MI</div><div className="profile-copy"><strong>Mohammad Irfan</strong><span>Starter Plan</span></div><MoreHorizontal size={18} />
-      </div>
-    </aside>
-  )
-}
-
-function TopBar() {
-  return <header className="topbar"><div className="top-actions"><button className="circle-button" aria-label="Search"><Search size={18} /></button><button className="circle-button" aria-label="Help"><CircleHelp size={18} /></button><button className="circle-button notification" aria-label="Notifications"><Bell size={18} /><i /></button><span className="top-divider" /><div className="top-user"><div className="avatar small">MI</div><span>Mohammad Irfan</span><ChevronDown size={16} /></div></div></header>
-}
-
-function ModelSelector() {
-  const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState({ provider: 'DeepSeek', name: 'DeepSeek V4.1 Flash', logo: deepseekLogo, detail: 'Fast · Agentic · 1M context' })
-  const models = [
-    { provider: 'DeepSeek', name: 'DeepSeek V4.1 Flash', logo: deepseekLogo, detail: 'Fast · Agentic · 1M context' },
-    { provider: 'DeepSeek', name: 'DeepSeek V4 Pro', logo: deepseekLogo, detail: 'Advanced · Complex reasoning · 1M context' },
-    { provider: 'Gemini', name: 'Gemini 3.1 Flash-Lite', logo: geminiLogo, detail: 'Fast · Efficient · Multimodal' },
-  ]
-  return <div className="model-wrap"><button className="model-select" onClick={() => setOpen(!open)} aria-expanded={open}><img src={selected.logo} alt={selected.provider} /><span><small>{selected.provider}</small><strong>{selected.name}</strong></span><ChevronDown size={16} /></button>{open && <div className="model-menu"><div className="model-menu-title">AI models</div>{models.map(model => <button key={model.name} className={`model-option ${selected.name === model.name ? 'selected' : ''}`} onClick={() => { setSelected(model); setOpen(false) }}><img src={model.logo} alt="" /><span><strong>{model.name}</strong><small>{model.detail}</small></span>{selected.name === model.name && <Check size={15} />}</button>)}</div>}</div>
-}
-
-function PromptComposer({ project = false }: { project?: boolean }) {
-  const [text, setText] = useState('')
-  const [sent, setSent] = useState(false)
-  return <div className={`composer ${project ? 'project-composer' : ''}`}>
-    <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={project ? 'Ask OrbisWeave about this project...' : 'Describe your automation or AI agent idea...'} aria-label={project ? 'Ask OrbisWeave about this project' : 'Describe your automation or AI agent idea'} />
-    <div className="composer-footer"><div className="composer-tools"><button className="tool-icon" aria-label="Attach file"><Paperclip size={18} /></button><button className="tool-chip"><GlobeIcon /> Web Search</button><button className="tool-chip"><FileText size={16} /> Deep Research</button></div><div className="composer-actions">{!project && <ModelSelector />}<button className="send-button" aria-label="Send" onClick={() => { setSent(true); setTimeout(() => setSent(false), 1800) }}>{sent ? <Check size={20} /> : <Send size={20} />}</button></div></div>
-  </div>
-}
-
-function GlobeIcon() { return <span className="globe-icon">◎</span> }
-
-function HomeView({ setView }: { setView: (view: View) => void }) {
-  return <section className="home-view"><div className="hero-orbit" /><div className="home-content"><Logo wordmark={false} chat /><h1>What do you want to <em>build?</em></h1><p>Turn your ideas into powerful AI agents and automations.</p><PromptComposer /><div className="shortcut"><kbd>⌘</kbd><kbd>K</kbd><span>to create a new project</span></div></div><div className="quote"><span /><p>“Ideas become reality when they are woven together.”<br /><b>— OrbisWeave</b></p><span /></div></section>
-}
-
-function ProjectsView({ setView }: { setView: (view: View) => void }) {
-  const [filter, setFilter] = useState('All')
-  return <section className="page-view"><div className="page-heading"><div><span className="eyebrow">WORKSPACE LIBRARY</span><h1>Projects</h1><p>Your AI systems, from first idea to production.</p></div><button className="lime-button" onClick={() => setView('home')}><Plus size={18} /> New Project</button></div><div className="project-toolbar"><div className="search-field"><Search size={17} /><input placeholder="Search projects..." /></div><div className="filters">{['All', 'Planning', 'Building', 'Testing', 'Deployed'].map(item => <button key={item} className={filter === item ? 'selected' : ''} onClick={() => setFilter(item)}>{item}</button>)}</div></div><div className="project-list">{projects.filter(p => filter === 'All' || p.phase === filter).map(project => <button className="project-row" key={project.name} onClick={() => setView('workspace')}><div className="project-icon"><Workflow size={20} /></div><div className="project-info"><strong>{project.name}</strong><span>{project.description}</span></div><div className="project-phase"><span className={`status-dot ${project.color}`} />{project.phase}<small>Milestone {Math.max(1, Math.round(project.progress / 15))} / 7</small></div><div className="progress-wrap"><div className="progress-label"><span>Progress</span><b>{project.progress}%</b></div><div className="progress"><i style={{ width: `${project.progress}%` }} /></div></div><div className="updated">{project.updated}<ChevronDown size={16} /></div></button>)}</div></section>
-}
-
-function WorkflowView({ view }: { view: View }) {
-  const [approved, setApproved] = useState(false)
-  const phase = view === 'workspace' ? 'architecture' : view
-  const titles: Record<string, string> = { idea: 'Idea', architecture: 'Architecture', resources: 'Resources', milestones: 'Milestones', development: 'Development', tests: 'Tests & Review', deployment: 'Deployment' }
-  const descriptions: Record<string, string> = { idea: 'Transform the rough prompt into an approved project definition.', architecture: 'Translate the approved idea into a clear technical system design.', resources: 'Confirm everything required to build and operate the project.', milestones: 'Turn the plan into an implementation-ready development roadmap.', development: 'A controlled implementation handoff based on approved milestones.', tests: 'Validate the current milestone against tests and acceptance criteria.', deployment: 'Prepare the approved project for production readiness.' }
-  const title = titles[phase] || 'Architecture'
-  const sections: Record<string, string[]> = { idea: ['Original Idea', 'AI Analysis', 'Missing Requirements', 'Improvements', 'Risks / Constraints', 'Refined Idea', 'Requirements', 'Final Project Specification'], architecture: ['System Overview', 'Architecture Diagram', 'System Components', 'Tech Stack', 'Data Flow', 'Integrations', 'Database / Data Layer', 'API / Interface Layer', 'AI / Agent Architecture', 'Security Considerations', 'Architecture Decisions', 'Alternatives'], resources: ['Technology', 'AI / Models', 'APIs & Services', 'Database & Storage', 'Infrastructure', 'Integrations', 'Development Tools', 'Dependencies', 'Environment Variables', 'Readiness Status', 'Cost Estimate', 'Effort / Resource Estimate'], milestones: ['Development Roadmap', 'M1 Foundation', 'M2 Database & Authentication', 'M3 AI Backend', 'M4 Core Workflow', 'M5 Integrations', 'M6 Testing', 'M7 Deployment'], development: ['Current Milestone', 'Implementation Plan', 'Implementation Instructions', 'Expected Changes', 'Test Requirements', 'Acceptance Criteria'], tests: ['Current Milestone', 'Required Tests', 'Acceptance Criteria', 'Review Checklist', 'Issues Found', 'Status'], deployment: ['Deployment Target', 'Deployment Readiness', 'Environment Variables', 'Deployment Instructions', 'Pre-Deployment Checklist', 'Post-Deployment Checklist'] }
-  const details: Record<string, string> = { 'System Overview': 'A lead qualification agent receives inbound leads, evaluates fit and intent, enriches context, and routes qualified opportunities to the CRM.', 'Architecture Diagram': 'User → Frontend → Backend / API → AI Agent Layer → Database → External Services', 'Original Idea': 'Build an AI-powered inbound lead qualification and routing workflow for the sales team.', 'Refined Idea': 'An auditable agent that scores inbound leads, explains its decision, and routes uncertain cases to human review.', 'Readiness Status': '8 resources identified · 5 ready · 2 required · 1 optional', 'Development Roadmap': 'Idea → Architecture → Resources → Milestones → Development → Test → Deploy' }
-  return <section className="page-view workflow-view"><div className="workspace-heading"><div><div className="breadcrumb"><span>Projects</span><span>/</span><strong>Lead Qualification Agent</strong></div><h1>{title}</h1><p>{descriptions[phase] || descriptions.architecture}</p></div><div className="role-selector"><span>PROJECT PHASE</span><button><Sparkles size={15} /> {title} <ChevronDown size={15} /></button></div></div><div className="phase-strip">{['Idea', 'Architecture', 'Resources', 'Milestones'].map((item, i) => { const activeIndex = ['idea', 'architecture', 'resources', 'milestones'].indexOf(phase); return <div className={i === activeIndex ? 'current' : i < activeIndex ? 'done' : ''} key={item}><span>{i < activeIndex ? '✓' : i === activeIndex ? '●' : '○'}</span>{item}</div> })}</div><div className="workflow-header"><span className="eyebrow">{title.toUpperCase()} · {phase === 'idea' || phase === 'architecture' || phase === 'resources' || phase === 'milestones' ? 'READY FOR REVIEW' : 'WORKSPACE'}</span><div className="workflow-actions"><button onClick={() => setApproved(false)}>Edit</button><button className={approved ? 'approved' : 'primary'} onClick={() => setApproved(true)}>{approved ? '✓ Approved' : `Approve ${title}`}</button></div></div><div className="workflow-grid">{sections[phase].map((section, index) => <article className={`workflow-card ${section === 'Architecture Diagram' || section === 'Development Roadmap' ? 'wide' : ''}`} key={section}><div className="card-label">{section.toUpperCase()}</div><h2>{section}</h2><p>{details[section] || (section === 'Security Considerations' ? 'Authentication, authorization, secrets, API security, data access, and human approval boundaries.' : section === 'Environment Variables' ? 'DATABASE_URL · DEEPSEEK_API_KEY · HUBSPOT_ACCESS_TOKEN · APP_URL' : section === 'Status' ? 'Ready · Needs Fix · Blocked' : 'Structured project guidance, responsibilities, dependencies, deliverables, and acceptance criteria for this stage.' )}</p>{(phase === 'resources' || phase === 'milestones' || phase === 'tests' || phase === 'deployment') && <div className="workflow-list"><span><Check size={14} /> {index % 2 ? 'Required' : 'Ready'}</span><span>{phase === 'milestones' ? 'Estimated effort · 2–4 days' : 'Owner · OrbisWeave'}</span></div>}</article>)}</div></section>
-}
-
-function SimpleView({ view }: { view: Extract<View, 'templates' | 'integrations' | 'usage' | 'settings'> }) {
-  const config = { templates: ['Templates', 'Start with a proven agent blueprint.', 'AI Agents', 'Sales', 'Marketing', 'Operations'], integrations: ['Integrations', 'Connect the tools your projects rely on.', 'AI', 'Development', 'CRM', 'Communication'], usage: ['Usage & Costs', 'Understand how your workspace is being used.', 'AI Spend', 'Tokens', 'Agent Runs', 'Successful Runs'], settings: ['Settings', 'Workspace preferences and model controls.', 'Profile', 'Workspace', 'AI & Models', 'Security'] }[view]
-  return <section className="page-view simple-view"><div className="page-heading"><div><span className="eyebrow">ORBISWEAVE</span><h1>{config[0]}</h1><p>{config[1]}</p></div></div><div className="simple-grid">{config.slice(2).map((item, i) => <div className="simple-card" key={item}><div className="simple-icon">{i % 2 === 0 ? <Zap size={20} /> : <Settings size={20} />}</div><div><strong>{item}</strong><p>{view === 'templates' ? 'Explore curated building blocks for your next workflow.' : view === 'integrations' ? 'Manage availability for this workspace.' : view === 'usage' ? 'This month&apos;s workspace activity.' : 'Configure how OrbisWeave works for you.'}</p></div><ChevronDown size={17} /></div>)}</div></section>
-}
-
-export default function Page() {
-  const [view, setView] = useState<View>('home')
-  const [projectOpen, setProjectOpen] = useState(false)
-  return <main className="product-app-shell"><Sidebar view={view} setView={setView} projectOpen={projectOpen} setProjectOpen={setProjectOpen} /><div className="main-shell"><TopBar />{view === 'home' && <HomeView setView={setView} />}{view === 'projects' && <ProjectsView setView={setView} />}{['workspace', 'idea', 'architecture', 'resources', 'milestones', 'development', 'tests', 'deployment'].includes(view) && <WorkflowView view={view} />}{(view === 'templates' || view === 'integrations' || view === 'usage' || view === 'settings') && <SimpleView view={view} />}</div></main>
-}
-
-// The supplied dashboard reference depicts the product's black workspace, restrained glow, centered prompt, and persistent project sidebar. The logo and DeepSeek images above are the authoritative uploaded assets.
+import { useState, useRef } from 'react'
+import { Bell, ChevronDown, CircleHelp, FileText, Folder, Globe, Home as HomeIcon, Link2, MoreHorizontal, Paperclip, Plus, Search, Send, SlidersHorizontal, Sparkles, Workflow, X } from 'lucide-react'
+const logo='https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SVG-gqI415gAmZMMFMUJ8bbVnkWEJMH9TW.png'
+const chatLogo='https://hebbkx1anhila5yf.public.blob.vercel-storage.com/SVG-Sp1Xi0lUD77k83d5ZiIFjxrPpZlXZA.png'
+type View='home'|'projects'|'connections'|'usage'|'workspace'|'idea'|'architecture'|'resources'|'milestones'|'development'|'tests'|'deployment'
+type Project={id:string;name:string;description:string;phase:string}
+const providers=['OpenAI','Anthropic Claude','Google Gemini','DeepSeek','Custom Provider']
+function Logo({hero=false}:{hero?:boolean}){return hero?<img className="hero-mark" src={chatLogo} alt="OrbisWeave"/>:<div className="brand-lockup"><img className="brand-mark" src={logo} alt=""/><span>orbisweave</span></div>}
+function Modal({close,create}:{close:()=>void;create:(n:string,d:string)=>void}){const [n,setN]=useState('');const[d,setD]=useState('');const[i,setI]=useState('');const[f,setF]=useState<File[]>([]);const r=useRef<HTMLInputElement>(null);return <div className="modal-backdrop"><section className="project-modal" role="dialog" aria-modal="true"><div className="modal-heading"><div><span className="eyebrow">WORKSPACE</span><h2>New Project</h2><p>Start with the context OrbisWeave needs to help you build.</p></div><button className="modal-close" onClick={close}><X/></button></div><label>PROJECT NAME<input value={n} onChange={e=>setN(e.target.value)} placeholder="e.g. Lead qualification agent"/></label><label>WHAT ARE YOU BUILDING?<textarea value={d} onChange={e=>setD(e.target.value)} placeholder="Describe the objective, problem, AI agent, automation, or desired system..."/></label><label>PROJECT CONTEXT</label><div className="file-drop" onClick={()=>r.current?.click()}><Paperclip/><strong>Drop files here or browse</strong><span>Multiple files supported · frontend only for now</span><input ref={r} hidden type="file" multiple onChange={e=>e.target.files&&setF([...e.target.files])}/></div><div className="file-list">{f.map((x,j)=><span className="file-chip" key={x.name+j}><FileText size={14}/>{x.name}<button onClick={()=>setF(f.filter((_,k)=>k!==j))}><X size={13}/></button></span>)}</div><label>PROJECT INSTRUCTIONS<span className="field-hint">Information OrbisWeave should remember and use while working on this project.</span><textarea value={i} onChange={e=>setI(e.target.value)} placeholder="Add project-specific context and preferences..."/></label><div className="modal-actions"><button className="secondary-action" onClick={close}>Cancel</button><button className="lime-button" disabled={!n.trim()} onClick={()=>create(n.trim(),d.trim())}><Plus size={18}/>Create Project</button></div></section></div>}
+function Sidebar({view,setView,projects,newProject}:{view:View;setView:(v:View)=>void;projects:Project[];newProject:()=>void}){const nav=[['Home',HomeIcon,'home'],['Projects',Folder,'projects'],['Connections',Link2,'connections'],['Usage & Costs',SlidersHorizontal,'usage']] as const;return <aside className="sidebar"><Logo/><button className="new-project" onClick={newProject}><Plus size={19}/><span>New Project</span></button><div className="sidebar-scroll"><nav className="main-nav"><span className="nav-section-label">WORKSPACE</span>{nav.map(([t,I,v])=><button className={`nav-item ${view===v?'active':''}`} key={t} onClick={()=>setView(v)}><I size={19}/><span>{t}</span></button>)}</nav><div className="recent-heading"><span>Recent Projects</span><Search size={16}/></div>{projects.length?projects.map(p=><button className="recent-project" key={p.id} onClick={()=>setView('workspace')}><span className="status-dot lime"/><span>{p.name}</span></button>):<div className="sidebar-empty">No projects yet</div>}<div className="project-tree"><span className="tree-label">BUILD <small>COMING SOON</small></span>{['Development','Tests & Review','Deployment'].map(t=><div className="tree-item disabled" key={t}>○ {t}</div>)}</div></div><div className="profile"><div className="avatar">MI</div><div className="profile-copy"><strong>Mohammad Irfan</strong><span>Starter Plan</span></div><MoreHorizontal size={18}/></div></aside>}
+function Top(){return <header className="topbar"><div className="top-actions"><button className="circle-button"><Search size={18}/></button><button className="circle-button"><CircleHelp size={18}/></button><button className="circle-button"><Bell size={18}/></button><span className="top-divider"/><div className="top-user"><div className="avatar small">MI</div><span>Mohammad Irfan</span><ChevronDown size={16}/></div></div></header>}
+function Model(){const[o,setO]=useState(false);return <div className="model-wrap"><button className="model-select" onClick={()=>setO(!o)}><Sparkles size={17}/><span><small>MODEL</small><strong>No model selected</strong></span><ChevronDown size={16}/></button>{o&&<div className="model-menu"><div className="model-menu-title">AI MODELS</div>{providers.map(p=><button className="model-option" key={p}><span><strong>{p}</strong><small>No enabled models</small></span></button>)}<button className="manage-models">Manage Models →</button></div>}</div>}
+function Composer({projects,newProject}:{projects:Project[];newProject:()=>void}){const[f,setF]=useState<File[]>([]);const[r]=useState(useRef<HTMLInputElement>(null));const[search,setSearch]=useState(false);return <div className="composer"><textarea placeholder="Describe your automation or AI agent idea..."/><div className="composer-footer"><div className="composer-tools"><button className="tool-icon" onClick={()=>r.current?.click()}><Paperclip size={18}/></button><input ref={r} hidden type="file" multiple onChange={e=>e.target.files&&setF([...e.target.files])}/><button className={`tool-chip ${search?'on':''}`} onClick={()=>setSearch(!search)}><Globe size={16}/>Web Search <small>{search?'ON':'OFF'}</small></button><button className="tool-chip" onClick={newProject}><Folder size={16}/>Project</button></div><div className="composer-actions"><Model/><button className="send-button"><Send size={20}/></button></div></div><div className="composer-files">{f.map((x,j)=><span className="file-chip" key={x.name+j}><FileText size={14}/>{x.name}<button onClick={()=>setF(f.filter((_,k)=>k!==j))}><X size={13}/></button></span>)}</div></div>}
+function Home({projects,newProject}:{projects:Project[];newProject:()=>void}){return <section className="home-view"><div className="hero-orbit"/><div className="home-content"><Logo hero/><h1>What do you want to <em>build?</em></h1><p>Turn your ideas into powerful AI agents and automations.</p><Composer projects={projects} newProject={newProject}/></div></section>}
+function Projects({projects,newProject}:{projects:Project[];newProject:()=>void}){const[f,setF]=useState('All');return <section className="page-view projects-page"><div className="page-heading"><div><span className="eyebrow">WORKSPACE LIBRARY</span><h1>Projects</h1><p>Your AI systems, from first idea to production.</p></div><button className="lime-button" onClick={newProject}><Plus size={18}/>New Project</button></div><div className="project-toolbar"><div className="search-field"><Search size={17}/><input placeholder="Search projects..."/></div><div className="filters">{['All','Planning','Building','Testing','Deployed'].map(x=><button className={f===x?'selected':''} key={x} onClick={()=>setF(x)}>{x}</button>)}</div></div><div className="project-list">{projects.filter(p=>f==='All'||p.phase===f).map(p=><div className="project-row" key={p.id}><div className="project-icon"><Workflow size={20}/></div><div className="project-info"><strong>{p.name}</strong><span>{p.description||'No description added.'}</span></div><div className="project-phase">{p.phase}</div><div className="progress-wrap">0%</div></div>)}{!projects.length&&<div className="results-empty">No projects yet<button onClick={newProject}><Plus size={15}/>New Project</button></div>}</div></section>}
+function Connections(){const[t,setT]=useState('AI Models');return <section className="page-view connections-page"><div className="page-heading"><div><span className="eyebrow">WORKSPACE</span><h1>Connections</h1><p>Manage the models and tools OrbisWeave can work with.</p></div></div><div className="connection-tabs"><button className={t==='AI Models'?'selected':''} onClick={()=>setT('AI Models')}>AI Models</button><button className={t==='Integrations'?'selected':''} onClick={()=>setT('Integrations')}>Integrations</button></div>{t==='AI Models'?<div className="provider-list">{providers.map(p=><article className="provider-card" key={p}><div className="provider-copy"><div className="provider-mark"><Sparkles size={18}/></div><div><h2>{p}</h2><p>Not connected</p></div></div><button className="secondary-action">Connect</button></article>)}</div>:<div className="connections-empty"><Link2 size={25}/><h2>Integrations</h2><p>Tool connections will be available here when your project needs them.</p></div>}</section>}
+function Simple({title}:{title:string}){return <section className="page-view simple-view"><div className="page-heading"><div><span className="eyebrow">ORBISWEAVE</span><h1>{title}</h1><p>Workspace destination prepared for the next backend pass.</p></div></div></section>}
+export default function Page(){const[view,setView]=useState<View>('home');const[projects,setProjects]=useState<Project[]>([]);const[modal,setModal]=useState(false);const create=(name:string,description:string)=>{setProjects(p=>[{id:crypto.randomUUID(),name,description,phase:'Planning'},...p]);setModal(false);setView('projects')};return <main className="product-app-shell"><Sidebar view={view} setView={setView} projects={projects} newProject={()=>setModal(true)}/><div className="main-shell"><Top/>{view==='home'&&<Home projects={projects} newProject={()=>setModal(true)}/>} {view==='projects'&&<Projects projects={projects} newProject={()=>setModal(true)}/>} {view==='connections'&&<Connections/>}{view==='usage'&&<Simple title="Usage & Costs"/>}{['workspace','idea','architecture','resources','milestones','development','tests','deployment'].includes(view)&&<Simple title={view==='workspace'?'Architecture':view}/>}</div>{modal&&<Modal close={()=>setModal(false)} create={create}/>}</main>}
